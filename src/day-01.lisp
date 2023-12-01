@@ -43,11 +43,9 @@
       (t
        (dotimes (index 9)
          (let ((digit-name (aref digit-names index)))
-           (when (and (< (length digit-name) (- end i))
-                      (string= string digit-name
-                               :start1 i :end1 (+ i (length digit-name))))
+           (when (core:string-starts-with string digit-name :start1 i)
              (return-from find-digit-value-or-name (1+ index)))))))))
 
 (defun parse-digit (c)
   (declare (type character c))
-  (- (char-code c) #.(char-code #\0)))
+  (digit-char-p c))
