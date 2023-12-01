@@ -30,7 +30,8 @@
           (incf sum (+ (* digit1 10) digit2))))))
 
 (defun find-digit-value-or-name (string &key from-end)
-  (declare (type string string))
+  (declare (type string string)
+           (type boolean from-end))
   (do ((digit-names  (if from-end *reversed-digit-names* *digit-names*))
        (string (if from-end (reverse string) string))
        (i 0 (1+ i))
