@@ -9,4 +9,5 @@
   :serial t
   :components
   ((:file "utils")
-   (:file "day-01")))
+   (:file "day-01")
+   (:file "day-02")))
