@@ -5,8 +5,7 @@
   :pathname "src"
   :depends-on
   ("tungsten-core"
-   "tungsten-http"
-   "tungsten-system")
+   "tungsten-http")
   :serial t
   :components
   ((:file "utils")
