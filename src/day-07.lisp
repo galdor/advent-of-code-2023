@@ -9,6 +9,8 @@
 
 (defvar *lines* (input-file-lines 7))
 
+(defparameter *jokers* nil)
+
 (deftype card ()
   'character)
 
@@ -16,7 +18,8 @@
   '(cons (simple-array card (5)) integer))
 
 (defun solve-1 ()
-  (let* ((hands (parse-hands *lines*))
+  (let* ((*jokers* nil)
+         (hands (parse-hands *lines*))
          (ranked-hands (rank-hands hands))
          (sum 0))
     (dolist (hand ranked-hands sum)
@@ -25,8 +28,14 @@
         (incf sum (* rank bid))))))
 
 (defun solve-2 ()
-  ;; TODO
-  nil)
+  (let* ((*jokers* t)
+         (hands (parse-hands *lines*))
+         (ranked-hands (rank-hands hands))
+         (sum 0))
+    (dolist (hand ranked-hands sum)
+      (let ((rank (cdr hand))
+            (bid (cdar hand)))
+        (incf sum (* rank bid))))))
 
 (defun parse-hands (lines)
   (declare (type list lines))
@@ -80,6 +89,13 @@
             (incf (cdr pair))
             (push (cons card 1) counts))))
     (setf counts (sort counts #'> :key #'cdr))
+    (when *jokers*
+      (let ((joker-pair (assoc #\J counts)))
+        (when joker-pair
+          (unless (null (cdr counts))
+            (setf counts (delete #\J counts :key #'car))
+            (when counts
+              (incf (cdar counts) (cdr joker-pair)))))))
     (cond
       ((= (cdar counts) 5)
        (cons 'five-of-a-kind 7))
@@ -110,7 +126,7 @@
     (#\8  7)
     (#\9  8)
     (#\T  9)
-    (#\J 10)
+    (#\J (if *jokers* 0 10))
     (#\Q 11)
     (#\K 12)
     (#\A 13)))
