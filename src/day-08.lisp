@@ -13,25 +13,55 @@
 (defun solve-1 ()
   (multiple-value-bind (instructions nodes)
       (parse-input *lines*)
-    (count-steps instructions nodes)))
+    (count-steps '("AAA") instructions nodes)))
 
+;; 9'606'140'307'013
 (defun solve-2 ()
-  ;; TODO
-  nil)
+  (multiple-value-bind (instructions nodes)
+      (parse-input *lines*)
+    (count-steps (start-nodes nodes) instructions nodes)))
 
-(defun count-steps (instructions nodes)
-  (labels ((walk (current-node nb-steps)
-           (cond
-             ((string= current-node "ZZZ")
-              nb-steps)
-             (t
-              (let ((node (gethash current-node nodes)))
-                (case (aref instructions (mod nb-steps (length instructions)))
-                  (#\L
-                   (walk (car node) (1+ nb-steps)))
-                  (#\R
-                   (walk (cdr node) (1+ nb-steps)))))))))
-    (walk "AAA" 0)))
+(defun count-steps (start-nodes instructions nodes)
+  (declare (type string instructions)
+           (type hash-table nodes))
+  (let ((periods (mapcar (lambda (node)
+                           (period node instructions nodes))
+                         start-nodes)))
+    (apply #'lcm periods)))
+
+(defun period (start-node instructions nodes)
+  (declare (type string start-node instructions)
+           (type hash-table nodes))
+  (do ((n 0 (1+ n))
+       (node start-node))
+      (nil)
+    (let ((instruction (aref instructions (mod n (length instructions)))))
+      (when (end-node-p node)
+        (return-from period n))
+      (setf node (next-step node instruction nodes)))))
+
+(defun next-step (node instruction nodes)
+  (declare (type string node)
+           (type character instruction)
+           (type hash-table nodes))
+  (let ((entry (gethash node nodes)))
+    (case instruction
+      (#\L (car entry))
+      (#\R (cdr entry)))))
+
+(defun start-nodes (nodes)
+  (declare (type hash-table nodes))
+  (let ((start-nodes nil))
+    (maphash (lambda (node destinations)
+               (declare (ignore destinations))
+               (when (char= (char node 2) #\A)
+                 (push node start-nodes)))
+             nodes)
+    start-nodes))
+
+(defun end-node-p (node)
+  (declare (type string node))
+  (char= (char node 2) #\Z))
 
 (defun parse-input (lines)
   (declare (type list lines))

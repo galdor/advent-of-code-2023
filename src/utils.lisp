@@ -10,6 +10,7 @@
    #:input-file-path
    #:input-file-data
    #:input-file-lines
+   #:parse-lines
    #:format-solution-code
    #:solution-file-path
    #:generate-solution-file
@@ -149,14 +150,18 @@ does not exist locally."
 (defun input-file-lines (day)
   "Return the content of an input file as a list of lines, downloading the file
 if it does not exist locally."
-  (do* ((data (input-file-data day))
-        (start 0)
-        (end (length data))
+  (parse-lines (input-file-data day)))
+
+(defun parse-lines (string)
+  "Parse a list of lines."
+  (declare (type string string))
+  (do* ((start 0)
+        (end (length string))
         (lines nil))
        ((>= start end)
         (nreverse lines))
-    (let ((eol (or (position #\Newline data :start start :end end) end)))
-      (push (subseq data start eol) lines)
+    (let ((eol (or (position #\Newline string :start start :end end) end)))
+      (push (subseq string start eol) lines)
       (setf start (1+ eol)))))
 
 (defun format-solution-code (day &key stream)
